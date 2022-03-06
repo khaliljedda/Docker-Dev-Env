@@ -1,0 +1,49 @@
+version: '3'
+services:
+    front:
+        build:
+          context: Front/.
+          dockerfile: Dockerfile
+        image: 'dev-back'
+        stdin_open: true
+        tty: true
+        ports: 
+          - 4200:4200
+        volumes:
+          - "/app/node_modules" 
+          - "./Front:/app"
+
+
+    back:
+      build:
+        context: Back/.
+        dockerfile: Dockerfile
+      image: 'dev-front'
+      ports:
+        - 8000:80
+      volumes:
+        - ./Back/.:/var/www/html  
+        - "/var/www/html/vendor" 
+
+    db:
+      image: mysql:5.7
+      restart: always
+      ports: 
+        - "3306:3306"
+      environment:
+        MYSQL_DATABASE: 'yourdbname'  
+        MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        MYSQL_ROOT_PASSWORD: ""
+      volumes:
+        - ./db:/var/lib/mysql
+
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      ports:
+        - "7000:80"
+      links:
+        - db:db
+      environment:
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+        MYSQL_ROOT_PASSWORD: root
